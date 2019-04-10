@@ -14,21 +14,27 @@ app.use(cors());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+const allowCrossDomain = (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+  if ('OPTIONS' == req.method) {
+    res.send(200);
+  }
+  else {
+    next();
+  }
+};
+
+app.use(allowCrossDomain);
+
 app.use('/static', express.static('public'));
 
 mongoose.connect(`mongodb+srv://reader:${process.env.MONGO_PW}@preso-ou-nao-xxodz.mongodb.net/test?retryWrites=true`, {
   useNewUrlParser: true
 });
    
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-    res.header('Acess-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, PUT');
-    res.status(200).json({});
-  }
-  next();
-});
 
 app.use('/politicians', require('./src/politician/routes'));
 
